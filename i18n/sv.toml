@@ -430,6 +430,8 @@ noEnergy = "Inga mätaruppgifter"
 pvExport = "Export till elnät"
 pvProduction = "Produktion"
 selfConsumption = "Egenförbrukning"
+batteryGridChargeLimit = "nätladdning när"
+batteryGridChargeActive = "nätladdning aktiv"
 
 [main.heatingStatus]
 charging = "Värmer..."
