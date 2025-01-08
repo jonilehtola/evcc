@@ -430,6 +430,8 @@ noEnergy = "Ingen målerdata"
 pvExport = "Eksport til elnet"
 pvProduction = "Produktion"
 selfConsumption = "Eget forbrug"
+batteryGridChargeActive = "Oplader fra elnettet"
+batteryGridChargeLimit = "Oplader fra elnettet når"
 
 [main.heatingStatus]
 charging = "Opvarmer..."
