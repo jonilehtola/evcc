@@ -435,6 +435,8 @@ noEnergy = "Aucune donnée de compteur"
 pvExport = "Injection"
 pvProduction = "Production"
 selfConsumption = "Consommation propre"
+batteryGridChargeActive = "charge réseau active"
+batteryGridChargeLimit = "charge réseau quand"
 
 [main.heatingStatus]
 charging = "Chauffage… "
