@@ -431,6 +431,8 @@ noEnergy = "Sem leituras"
 pvExport = "Alimentação"
 pvProduction = "Produção"
 selfConsumption = "Consumo próprio"
+batteryGridChargeActive = "carga da rede ativa"
+batteryGridChargeLimit = "carga da rede quando"
 
 [main.heatingStatus]
 charging = "Aquecendo..."

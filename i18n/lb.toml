@@ -428,6 +428,8 @@ noEnergy = "Keng Moossdaten"
 pvExport = "Export an d'Stroumnetz"
 pvProduction = "Produktioun"
 selfConsumption = "eegene Verbrauch"
+batteryGridChargeActive = "Netzlueden aktiv"
+batteryGridChargeLimit = "Netzluede wann"
 
 [main.heatingStatus]
 charging = "Wiermen…"
