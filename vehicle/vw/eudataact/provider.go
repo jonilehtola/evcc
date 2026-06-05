@@ -28,12 +28,13 @@ const (
 // timestamp plus portalInterval and a latency margin), so the map is updated as
 // soon as the portal delivers a new dataset.
 type Provider struct {
+	log     *util.Logger
 	statusG func() (map[string]point, error)
 }
 
 // NewProvider creates a vehicle api provider
 func NewProvider(api *API, vin string, cache time.Duration) *Provider {
-	v := &Provider{}
+	v := &Provider{log: api.log}
 	s := sharedStore(api)
 
 	var cached util.Cacheable[map[string]point]
@@ -45,7 +46,15 @@ func NewProvider(api *API, vin string, cache time.Duration) *Provider {
 		if !ts.IsZero() {
 			time.AfterFunc(resetDelay(ts, time.Now()), cached.Reset)
 		}
-		return s.snapshot(vin), nil
+		data := s.snapshot(vin)
+		if p := lookup(data, FieldCarCapturedTime); p != nil {
+			if t, err := time.Parse(time.RFC3339, p.Value); err == nil {
+				if age := time.Since(t); age > 4*portalInterval {
+					v.log.DEBUG.Printf("vehicle data is stale: car last reported %s ago", age.Round(time.Minute))
+				}
+			}
+		}
+		return data, nil
 	}, cache)
 
 	v.statusG = cached.Get
@@ -115,6 +124,18 @@ func (v *Provider) FinishTime() (time.Time, error) {
 		return time.Time{}, err
 	}
 
+	// new format: absolute finish time
+	if p := lookup(data, FieldFinishTime); p != nil {
+		return time.Parse(time.RFC3339, p.Value)
+	}
+	// new format: remaining seconds with "s" suffix
+	if p := lookup(data, FieldRemainingTimeAlt); p != nil {
+		val := strings.TrimSuffix(p.Value, "s")
+		if secs, err := strconv.ParseInt(val, 0, 64); err == nil {
+			return time.Now().Add(time.Duration(secs) * time.Second), nil
+		}
+	}
+	// old format: remaining minutes as integer offset from data timestamp
 	if p := lookup(data, FieldRemainingTime); p != nil && p.Value != "65535" {
 		if v, err := strconv.ParseInt(p.Value, 0, 64); err == nil {
 			return p.Timestamp.Add(time.Duration(v) * time.Minute), nil
@@ -155,8 +176,13 @@ func (v *Provider) Status() (api.ChargeStatus, error) {
 		status = api.StatusB
 	}
 
-	if p := lookup(data, FieldChargingState, FieldCurrentChargeState); p != nil &&
-		(strings.EqualFold(p.Value, "charging") || strings.Contains(strings.ToUpper(p.Value), "CHARGING_HV")) {
+	if p := lookup(data, FieldChargingState); p != nil &&
+		(strings.EqualFold(p.Value, "charging") || strings.EqualFold(p.Value, "conservationCharging")) {
+		status = api.StatusC
+	}
+
+	if p := lookup(data, FieldCurrentChargeState); p != nil &&
+		(strings.Contains(p.Value, "CHARGING_HV") || p.Value == "CHARGE_STATE_CONSERVATION_CHARGING") {
 		status = api.StatusC
 	}
 

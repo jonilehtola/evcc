@@ -43,6 +43,26 @@ func TestStatusPlugStates(t *testing.T) {
 	}
 }
 
+func TestStatusConservationCharging(t *testing.T) {
+	tc := []struct {
+		field    string
+		value    string
+		expected api.ChargeStatus
+	}{
+		{FieldChargingState, "conservationCharging", api.StatusC},
+		{FieldCurrentChargeState, "CHARGE_STATE_CONSERVATION_CHARGING", api.StatusC},
+	}
+
+	for _, tc := range tc {
+		data := map[string]point{tc.field: {Value: tc.value}}
+		p := testProvider(data)
+
+		status, err := p.Status()
+		require.NoError(t, err)
+		assert.Equal(t, tc.expected, status, "field=%q value=%q", tc.field, tc.value)
+	}
+}
+
 func TestResolveBrand(t *testing.T) {
 	for _, name := range []string{"audi", "AUDI", "Audi", "aUdI"} {
 		b, ok := resolveBrand(name)

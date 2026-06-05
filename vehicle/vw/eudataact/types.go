@@ -115,6 +115,9 @@ const (
 	FieldPlugState             = "plug_state"
 	FieldTargetSoc             = "settings.target_soc"
 	FieldRemainingTime         = "remaining_charging_time"
+	FieldRemainingTimeAlt      = "battery_state_report.remaining_charging_time_complete"
+	FieldFinishTime            = "profile_state_report.next_charging_timer_information.estimated_finish_time"
+	FieldCarCapturedTime       = "car_captured_time"
 )
 
 // contentDatasets returns the datasets that actually carry content, with their
